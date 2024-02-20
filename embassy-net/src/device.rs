@@ -4,7 +4,7 @@ use embassy_net_driver::{Capabilities, Checksum, Driver, RxToken, TxToken};
 use smoltcp::phy::{self, Medium};
 use smoltcp::time::Instant;
 
-pub(crate) struct DriverAdapter<'d, 'c, T>
+pub struct DriverAdapter<'d, 'c, T>
 where
     T: Driver,
 {
@@ -64,7 +64,7 @@ where
     }
 }
 
-pub(crate) struct RxTokenAdapter<T>(T)
+pub struct RxTokenAdapter<T>(T)
 where
     T: RxToken;
 
@@ -84,7 +84,7 @@ where
     }
 }
 
-pub(crate) struct TxTokenAdapter<T>(T)
+pub struct TxTokenAdapter<T>(T)
 where
     T: TxToken;
 

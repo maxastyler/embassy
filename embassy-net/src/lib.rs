@@ -12,7 +12,7 @@ compile_error!("You must enable at least one of the following features: proto-ip
 // This mod MUST go first, so that the others see its macros.
 pub(crate) mod fmt;
 
-mod device;
+pub mod device;
 #[cfg(feature = "dns")]
 pub mod dns;
 #[cfg(feature = "tcp")]
@@ -56,8 +56,8 @@ pub use smoltcp::wire::{Ipv6Address, Ipv6Cidr};
 use crate::device::DriverAdapter;
 use crate::time::{instant_from_smoltcp, instant_to_smoltcp};
 
-const LOCAL_PORT_MIN: u16 = 1025;
-const LOCAL_PORT_MAX: u16 = 65535;
+pub const LOCAL_PORT_MIN: u16 = 1025;
+pub const LOCAL_PORT_MAX: u16 = 65535;
 #[cfg(feature = "dns")]
 const MAX_QUERIES: usize = 4;
 #[cfg(feature = "dhcpv4-hostname")]
@@ -65,7 +65,7 @@ const MAX_HOSTNAME_LEN: usize = 32;
 
 /// Memory resources needed for a network stack.
 pub struct StackResources<const SOCK: usize> {
-    sockets: [SocketStorage<'static>; SOCK],
+    pub sockets: [SocketStorage<'static>; SOCK],
     #[cfg(feature = "dns")]
     queries: [Option<dns::DnsQuery>; MAX_QUERIES],
     #[cfg(feature = "dhcpv4-hostname")]
@@ -239,20 +239,20 @@ pub enum ConfigV6 {
 ///
 /// This is the main entry point for the network stack.
 pub struct Stack<D: Driver> {
-    pub(crate) socket: RefCell<SocketStack>,
-    inner: RefCell<Inner<D>>,
+    pub socket: RefCell<SocketStack>,
+    pub inner: RefCell<Inner<D>>,
 }
 
-struct Inner<D: Driver> {
-    device: D,
-    link_up: bool,
+pub struct Inner<D: Driver> {
+    pub device: D,
+    pub link_up: bool,
     #[cfg(feature = "proto-ipv4")]
-    static_v4: Option<StaticConfigV4>,
+    pub static_v4: Option<StaticConfigV4>,
     #[cfg(feature = "proto-ipv6")]
     static_v6: Option<StaticConfigV6>,
     #[cfg(feature = "dhcpv4")]
     dhcp_socket: Option<SocketHandle>,
-    config_waker: WakerRegistration,
+    pub config_waker: WakerRegistration,
     #[cfg(feature = "dns")]
     dns_socket: SocketHandle,
     #[cfg(feature = "dns")]
@@ -261,14 +261,14 @@ struct Inner<D: Driver> {
     hostname: &'static mut core::cell::UnsafeCell<HostnameResources>,
 }
 
-pub(crate) struct SocketStack {
-    pub(crate) sockets: SocketSet<'static>,
-    pub(crate) iface: Interface,
-    pub(crate) waker: WakerRegistration,
-    next_local_port: u16,
+pub struct SocketStack {
+    pub sockets: SocketSet<'static>,
+    pub iface: Interface,
+    pub waker: WakerRegistration,
+    pub next_local_port: u16,
 }
 
-fn to_smoltcp_hardware_address(addr: driver::HardwareAddress) -> (HardwareAddress, Medium) {
+pub fn to_smoltcp_hardware_address(addr: driver::HardwareAddress) -> (HardwareAddress, Medium) {
     match addr {
         #[cfg(feature = "medium-ethernet")]
         driver::HardwareAddress::Ethernet(eth) => (HardwareAddress::Ethernet(EthernetAddress(eth)), Medium::Ethernet),
@@ -759,7 +759,7 @@ impl<D: Driver> Inner<D> {
         };
     }
 
-    fn apply_static_config(&mut self, s: &mut SocketStack) {
+    pub fn apply_static_config(&mut self, s: &mut SocketStack) {
         let mut addrs = Vec::new();
         #[cfg(feature = "dns")]
         let mut dns_servers: Vec<_, 6> = Vec::new();
